@@ -1,0 +1,52 @@
+{
+  "schemaVersion": 1,
+  "runId": "20261127-114835-01-baseline-harness-0d94",
+  "exercise": "01",
+  "condition": "baseline",
+  "interface": "harness",
+  "origin": "live",
+  "controlled": true,
+  "agent": {
+    "name": "workshop-harness",
+    "version": "1.0.0"
+  },
+  "model": {
+    "provider": "google",
+    "id": "gemini-3.5-flash-lite",
+    "reportedBy": "harness"
+  },
+  "openlore": {
+    "enabled": false
+  },
+  "snapshot": {
+    "source": "core-app",
+    "hash": "0a9cb6e31097d7276f3c254a7adc25e51455f725aa341c5529b61768b7ba28be"
+  },
+  "prompt": {
+    "taskSha256": "cf12a36e57ac57db81a0e6ccb23f2a7a69f030ff1d6e77c9df23d8fce78a6a78",
+    "instructionsSha256": "09274f6e112238f9ba53643e74e2ad95ec4640e0257230dd2c48a0d5c24286ab"
+  },
+  "budgets": {
+    "maxModelRequests": 30,
+    "maxToolCalls": 60,
+    "maxRuntimeMs": 300000
+  },
+  "generation": {
+    "temperature": "provider default",
+    "maxOutputTokens": "provider default",
+    "maxRetries": 2,
+    "requestsPerMinute": 5
+  },
+  "isolation": "harness: workspace-confined tools, no shell, sandboxed test runs (Node permission model, scrubbed env)",
+  "workspace": "/Users/shivaylamba/Downloads/gemini-shared-agent-memory-workshop/.workshop/workspaces/01-baseline",
+  "harnessVersion": "1.0.0",
+  "startedAt": "2026-11-27T11:48:35.293Z",
+  "host": {
+    "platform": "darwin-arm64",
+    "node": "v24.22.2"
+  },
+  "finishedAt": "2026-11-27T11:53:47.593Z",
+  "notes": [
+    "Re-graded 2026-11-27: cumulative-accounting now accepts 409 ORDER_NOT_REFUNDABLE or 422 REFUND_EXCEEDS_REFUNDABLE for a fully refunded order (both readings of ADR-005)"
+  ]
+}

@@ -1,0 +1,222 @@
+===================================================================
+--- a/src/app.ts
++++ b/src/app.ts
+@@ -35,7 +35,7 @@
+   const provider = createPaymentProvider(gateway);
+ 
+   const payments = new PaymentService({ orders, provider, idempotency, ledger, clock });
+-  const refunds = new RefundService({ orders, idempotency, ledger, clock });
++  const refunds = new RefundService({ orders, provider, idempotency, ledger, clock });
+ 
+   const router = new Router();
+   router.use(errorHandler);
+
+===================================================================
+--- a/src/refunds/refund-routes.ts
++++ b/src/refunds/refund-routes.ts
+@@ -1,3 +1,6 @@
++import { requireJsonObject } from '../middleware/json-body.ts';
++import { parseIdempotencyKey } from '../utils/idempotency.ts';
++import { parsePositivePaise } from '../utils/money.ts';
+ import type { Router } from '../utils/router.ts';
+ import type { RefundService } from './refund-service.ts';
+ 
+@@ -6,7 +9,11 @@
+ }
+ 
+ export function registerRefundRoutes(router: Router, deps: RefundRouteDeps): void {
+-  // TODO(workshop): register POST /api/orders/:orderId/refund (see docs/architecture/api.md).
+-  void router;
+-  void deps;
++  router.post('/api/orders/:orderId/refund', async (request) => {
++    const body = requireJsonObject(request.body);
++    const amount = parsePositivePaise(body.amount, 'amount');
++    const idempotencyKey = parseIdempotencyKey(body.idempotencyKey);
++    const result = await deps.refunds.refund({ orderId: request.params.orderId!, amount, idempotencyKey });
++    return { status: 201, body: result };
++  });
+ }
+
+===================================================================
+--- a/src/refunds/refund-service.ts
++++ b/src/refunds/refund-service.ts
+@@ -1,15 +1,19 @@
+-import type { IdempotencyStore } from '../utils/idempotency.ts';
++import { AppError } from '../utils/errors.ts';
++import { fingerprintOf, type IdempotencyStore } from '../utils/idempotency.ts';
+ import type { Paise } from '../utils/money.ts';
++import { withRetry } from '../utils/retry.ts';
++import { isRetryableProviderError, type PaymentProvider } from '../integrations/payment-provider.ts';
+ import type { OrderRepository } from '../orders/order-repository.ts';
+-import type { OrderView } from '../orders/order.ts';
++import { refundableAmountOf, toOrderView, type OrderView } from '../orders/order.ts';
++import { providerFailure } from '../payments/payment-service.ts';
+ import type { TransactionLedger } from '../payments/transaction-ledger.ts';
+ 
+ export interface RefundServiceDeps {
+   orders: OrderRepository;
++  provider: PaymentProvider;
+   idempotency: IdempotencyStore;
+   ledger: TransactionLedger;
+   clock: () => Date;
+-  // TODO(workshop): refunds also need access to the payment provider.
+ }
+ 
+ export interface RefundInput {
+@@ -36,6 +40,8 @@
+ /**
+  * Refunds part or all of a paid order.
+  * Contract: docs/architecture/api.md ("POST /api/orders/:orderId/refund").
++ * Accounting rules: ADR-005. Follows the same conventions as PaymentService.pay
++ * (ADR-001 paise, ADR-002 v2 provider, ADR-003 idempotency, ADR-004 errors).
+  */
+ export class RefundService {
+   private readonly deps: RefundServiceDeps;
+@@ -45,9 +51,66 @@
+   }
+ 
+   async refund(input: RefundInput): Promise<RefundResult> {
+-    // TODO(workshop): implement the refund operation.
+-    void this.deps;
+-    void input;
+-    throw new Error('RefundService.refund is not implemented yet');
++    const { orders, provider, idempotency, ledger, clock } = this.deps;
++    const scope = `refund:${input.orderId}`;
++    const fingerprint = fingerprintOf({ orderId: input.orderId, amount: input.amount });
++
++    return idempotency.run(scope, input.idempotencyKey, fingerprint, async () => {
++      const order = orders.get(input.orderId);
++      if ((order.status !== 'paid' && order.status !== 'partially_refunded') || !order.chargeId) {
++        throw new AppError('ORDER_NOT_REFUNDABLE', `Order ${order.id} has not been paid`, {
++          orderId: order.id,
++          status: order.status,
++        });
++      }
++
++      const refundableAmount = refundableAmountOf(order);
++      if (input.amount > refundableAmount) {
++        throw new AppError('REFUND_EXCEEDS_REFUNDABLE', 'The refund amount is larger than the remaining refundable amount', {
++          orderId: order.id,
++          amount: input.amount,
++          refundableAmount,
++        });
++      }
++
++      const chargeId = order.chargeId;
++      const providerRefund = await withRetry(
++        () => provider.refund({ chargeId, amount: input.amount, reference: order.id, idempotencyKey: input.idempotencyKey }),
++        { attempts: 3, isRetryable: isRetryableProviderError },
++      ).catch((error: unknown) => {
++        throw providerFailure(error, order.id);
++      });
++
++      // Re-read so a concurrent refund (different key) on the same order is not overwritten.
++      const current = orders.get(order.id);
++      const refundedAmount = current.refundedAmount + providerRefund.amount;
++      const now = clock().toISOString();
++      const saved = orders.save({
++        ...current,
++        refundedAmount,
++        status: refundedAmount >= current.amount ? 'refunded' : 'partially_refunded',
++        updatedAt: now,
++      });
++      const transaction = ledger.record({
++        orderId: order.id,
++        type: 'refund',
++        amount: providerRefund.amount,
++        provider: provider.name,
++        providerReference: providerRefund.providerRefundId,
++        idempotencyKey: input.idempotencyKey,
++        createdAt: now,
++      });
++
++      const refund: Refund = {
++        id: transaction.id,
++        orderId: order.id,
++        amount: transaction.amount,
++        status: 'succeeded',
++        providerRefundId: providerRefund.providerRefundId,
++        idempotencyKey: input.idempotencyKey,
++        createdAt: now,
++      };
++      return { refund, order: toOrderView(saved) };
++    });
+   }
+ }
+
+===================================================================
+--- a/tests/refunds.test.ts
++++ b/tests/refunds.test.ts
+@@ -34,3 +34,72 @@
+   assert.equal(response.status, 400);
+   assert.equal((response.body as { error: { code: string } }).error.code, 'VALIDATION_FAILED');
+ });
++
++type ErrorResponse = { error: { code: string } };
++type OrderBody = { order: { status: string; refundedAmount: number; refundableAmount: number } };
++
++test('refunds: pending orders return ORDER_NOT_REFUNDABLE without a provider call', async () => {
++  const app = createTestApp();
++  const response = await post(app, '/api/orders/ord_1003/refund', { amount: 100, idempotencyKey: 'refund-request-409' });
++  assert.equal(response.status, 409);
++  assert.equal((response.body as ErrorResponse).error.code, 'ORDER_NOT_REFUNDABLE');
++  assert.equal(app.gateway.callsTo('createRefund').length, 0);
++});
++
++test('refunds: amounts above the refundable amount fail before the provider call', async () => {
++  const app = createTestApp();
++  await payOrder(app, 'ord_1001');
++  const response = await post(app, '/api/orders/ord_1001/refund', { amount: 50_001, idempotencyKey: 'refund-request-422' });
++  assert.equal(response.status, 422);
++  assert.equal((response.body as ErrorResponse).error.code, 'REFUND_EXCEEDS_REFUNDABLE');
++  assert.equal(app.gateway.callsTo('createRefund').length, 0);
++});
++
++test('refunds: multiple partial refunds reach refunded and are recorded in the ledger', async () => {
++  const app = createTestApp();
++  await payOrder(app, 'ord_1001');
++  await post(app, '/api/orders/ord_1001/refund', { amount: 20_000, idempotencyKey: 'refund-step-0001' });
++  const response = await post(app, '/api/orders/ord_1001/refund', { amount: 30_000, idempotencyKey: 'refund-step-0002' });
++  assert.equal(response.status, 201);
++  const order = (response.body as OrderBody).order;
++  assert.equal(order.status, 'refunded');
++  assert.equal(order.refundedAmount, 50_000);
++  assert.equal(order.refundableAmount, 0);
++  const refunds = app.ledger.forOrder('ord_1001').filter((t) => t.type === 'refund');
++  assert.deepEqual(refunds.map((t) => t.amount), [20_000, 30_000]);
++  const calls = app.gateway.callsTo('createRefund');
++  assert.equal(calls.length, 2);
++  assert.equal(calls[0]!.api, 'v2');
++  assert.equal(calls[0]!.payload.amount_paise, 20_000);
++});
++
++test('refunds: replays are idempotent and key reuse with a different amount is rejected', async () => {
++  const app = createTestApp();
++  await payOrder(app, 'ord_1002');
++  const first = await post(app, '/api/orders/ord_1002/refund', { amount: 10_000, idempotencyKey: 'refund-replay-001' });
++  const replay = await post(app, '/api/orders/ord_1002/refund', { amount: 10_000, idempotencyKey: 'refund-replay-001' });
++  assert.equal(replay.status, 201);
++  assert.deepEqual(replay.body, first.body);
++  assert.equal(app.gateway.callsTo('createRefund').length, 1);
++  const reused = await post(app, '/api/orders/ord_1002/refund', { amount: 20_000, idempotencyKey: 'refund-replay-001' });
++  assert.equal(reused.status, 409);
++  assert.equal((reused.body as ErrorResponse).error.code, 'IDEMPOTENCY_KEY_REUSED');
++});
++
++test('refunds: retryable provider errors are retried with the same key; failures change nothing', async () => {
++  const app = createTestApp();
++  await payOrder(app, 'ord_1004');
++  app.gateway.failNext('createRefund', { code: 'TIMEOUT', retryable: true });
++  const ok = await post(app, '/api/orders/ord_1004/refund', { amount: 5_000, idempotencyKey: 'refund-retry-0001' });
++  assert.equal(ok.status, 201);
++  const keys = app.gateway.callsTo('createRefund').map((c) => c.payload.idempotency_key);
++  assert.deepEqual(keys, ['refund-retry-0001', 'refund-retry-0001']);
++
++  app.gateway.failNext('createRefund', { code: 'DECLINED', retryable: false });
++  const failed = await post(app, '/api/orders/ord_1004/refund', { amount: 5_000, idempotencyKey: 'refund-retry-0002' });
++  assert.equal(failed.status, 502);
++  assert.equal((failed.body as ErrorResponse).error.code, 'PAYMENT_PROVIDER_ERROR');
++  const order = await get(app, '/api/orders/ord_1004');
++  assert.equal((order.body as OrderBody).order.refundedAmount, 5_000);
++  assert.equal(app.ledger.forOrder('ord_1004').filter((t) => t.type === 'refund').length, 1);
++});

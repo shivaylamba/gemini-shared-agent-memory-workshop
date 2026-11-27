@@ -1,0 +1,43 @@
+# Generated into .workshop/openlore/openlore.yml by `npm run setup` / `npm run lore:start`.
+# Every key below is documented in OpenLore v0.8.0 docs/reference/openlore-yml.md.
+version: "1"
+
+# SSH (no keys are registered, keyless access is disabled: SSH is effectively closed).
+port: {{SSH_PORT}}
+# HTTP serves MCP (/mcp) and the JSON API (/api). OpenLore v0.8.0 has no bind-address
+# setting and listens on all interfaces, so every HTTP request must carry a token.
+http_port: {{HTTP_PORT}}
+metrics_port: 0
+
+host_key_path: ./state/host_ed25519
+data_dir: ./state/data
+auth_file: ./lore.json
+default_cwd: /knowledge
+motd: "ShopFlow workshop knowledge repository. Approved notes: /knowledge. Review inbox: /proposals/inbox."
+
+# Writes are governed by lore.json grants: agents can only publish into /proposals/inbox;
+# only the maintainer identity can change /knowledge.
+readonly: false
+write_conflict_policy: hash
+
+mcp:
+  enabled: true
+  path: /mcp
+  require_auth: true
+
+api:
+  enabled: true
+
+tokens:
+  issuer: http://localhost:{{HTTP_PORT}}
+  audience: http://localhost:{{HTTP_PORT}}
+
+# Analytics writes OpenLore's own event log (doc.read, search.query, … per identity) under
+# state/data/analytics. The workshop reads it to measure what external agents retrieved.
+analytics:
+  enabled: true
+  dir: analytics
+
+files:
+  allowed: ["*.md"]
+  ignore: [".git", "node_modules", ".env"]

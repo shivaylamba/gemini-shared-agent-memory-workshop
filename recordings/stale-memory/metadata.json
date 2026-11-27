@@ -1,0 +1,57 @@
+{
+  "schemaVersion": 1,
+  "runId": "20261127-120235-03-stale-memory-harness-2a5d",
+  "exercise": "03",
+  "condition": "shared-memory",
+  "label": "stale-memory",
+  "interface": "harness",
+  "origin": "live",
+  "controlled": true,
+  "agent": {
+    "name": "workshop-harness",
+    "version": "1.0.0"
+  },
+  "model": {
+    "provider": "google",
+    "id": "gemini-3.5-flash-lite",
+    "reportedBy": "harness"
+  },
+  "openlore": {
+    "enabled": true,
+    "identity": "harness-reader",
+    "scope": "read",
+    "endpoint": "http://localhost:7420",
+    "serverVersion": "0.8.0"
+  },
+  "snapshot": {
+    "source": "core-app",
+    "hash": "0a9cb6e31097d7276f3c254a7adc25e51455f725aa341c5529b61768b7ba28be"
+  },
+  "prompt": {
+    "taskSha256": "cf12a36e57ac57db81a0e6ccb23f2a7a69f030ff1d6e77c9df23d8fce78a6a78",
+    "instructionsSha256": "34b762adb44623fbf8dbe26f401c037be6d3cc39ae650fb9d6e9aed88c8b5cd9"
+  },
+  "budgets": {
+    "maxModelRequests": 30,
+    "maxToolCalls": 60,
+    "maxRuntimeMs": 300000
+  },
+  "generation": {
+    "temperature": "provider default",
+    "maxOutputTokens": "provider default",
+    "maxRetries": 2,
+    "requestsPerMinute": 5
+  },
+  "isolation": "harness: workspace-confined tools, no shell, sandboxed test runs (Node permission model, scrubbed env)",
+  "workspace": "/Users/shivaylamba/Downloads/gemini-shared-agent-memory-workshop/.workshop/workspaces/03-shared-memory",
+  "harnessVersion": "1.0.0",
+  "startedAt": "2026-11-27T12:02:35.287Z",
+  "host": {
+    "platform": "darwin-arm64",
+    "node": "v24.22.2"
+  },
+  "finishedAt": "2026-11-27T12:07:46.506Z",
+  "notes": [
+    "Re-graded 2026-11-27: cumulative-accounting now accepts 409 ORDER_NOT_REFUNDABLE or 422 REFUND_EXCEEDS_REFUNDABLE for a fully refunded order (both readings of ADR-005)"
+  ]
+}

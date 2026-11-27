@@ -1,0 +1,49 @@
+{
+  "schemaVersion": 1,
+  "runId": "20261127-115349-02-capture-harness-0f53",
+  "status": "completed",
+  "correctness": null,
+  "correctnessUnavailable": "capture runs do not implement the endpoint",
+  "metrics": {
+    "values": {
+      "modelRequests": 15,
+      "inputTokens": 86613,
+      "outputTokens": 1884,
+      "reasoningTokens": 0,
+      "cachedInputTokens": 42067,
+      "totalTokens": 88497,
+      "peakInputTokens": 9312,
+      "toolCalls": 14,
+      "toolErrors": 0,
+      "localFileReads": 5,
+      "uniqueFilesRead": 5,
+      "localBytesRead": 7369,
+      "localSearches": 1,
+      "knowledgeLists": 1,
+      "knowledgeSearches": 0,
+      "knowledgeReads": 0,
+      "uniqueKnowledgeDocsRead": 0,
+      "knowledgeBytesRetrieved": 184,
+      "proposalsPublished": 3,
+      "filesWritten": 0,
+      "testRuns": 0,
+      "elapsedMs": 130937,
+      "waitMs": 107566
+    },
+    "unavailable": {}
+  },
+  "changes": {
+    "added": 0,
+    "modified": 0,
+    "deleted": 0,
+    "outsideAllowedAreas": []
+  },
+  "knowledge": {
+    "read": [],
+    "proposed": [
+      "/proposals/inbox/payment-and-refund-architecture.md",
+      "/proposals/inbox/refund-accounting-and-validation-rules.md",
+      "/proposals/inbox/payment-provider-abstraction-and-idempotency.md"
+    ]
+  }
+}

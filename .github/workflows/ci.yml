@@ -1,0 +1,68 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  test:
+    name: Unit tests (${{ matrix.os }}, Node ${{ matrix.node }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, macos-latest]
+        node: ['22', '24']
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node }}
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test                 # harness, providers (mock APIs), evaluation, grader mutation tests; no keys needed
+      - run: npm run test:app         # starter state and reference implementation through the hidden grader
+
+  openlore-integration:
+    name: OpenLore integration (pinned release)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - run: npm run setup -- --path harness   # downloads OpenLore 0.8.0 and verifies its SHA-256
+      - run: npm run test:integration
+      - name: Doctor (OpenLore path)
+        run: |
+          npm run lore:start
+          WORKSHOP_MODE=external npm run doctor
+          npm run lore:stop
+
+  live-smoke:
+    name: Live provider smoke tests (optional)
+    runs-on: ubuntu-latest
+    if: ${{ github.event_name == 'push' && github.ref == 'refs/heads/main' }}
+    strategy:
+      fail-fast: false
+      matrix:
+        provider: [google, openai, anthropic]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - run: npm ci
+      - name: Smoke test ${{ matrix.provider }}
+        env:
+          MODEL_PROVIDER: ${{ matrix.provider }}
+          GOOGLE_GENERATIVE_AI_API_KEY: ${{ secrets.GOOGLE_GENERATIVE_AI_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+        run: |
+          if [ -z "$GOOGLE_GENERATIVE_AI_API_KEY$OPENAI_API_KEY$ANTHROPIC_API_KEY" ]; then echo "No provider secrets configured; skipping."; exit 0; fi
+          npm run smoke || echo "::warning::live smoke test failed for ${{ matrix.provider }}"

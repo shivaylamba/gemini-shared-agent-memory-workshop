@@ -1,0 +1,58 @@
+{
+  "name": "gemini-shared-agent-memory-workshop",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Beyond the Context Window: Building Shared Agent Memory with Gemini — a 75-minute hands-on workshop using Gemini, OpenLore and a small TypeScript payments app.",
+  "license": "MIT",
+  "type": "module",
+  "engines": {
+    "node": ">=22.18.0"
+  },
+  "scripts": {
+    "setup": "node scripts/setup.ts",
+    "doctor": "node scripts/doctor.ts",
+    "lore:start": "node scripts/openlore-start.ts",
+    "lore:stop": "node scripts/openlore-stop.ts",
+    "lore:review": "node scripts/lore-review.ts",
+    "lore": "node scripts/lore-shell.ts",
+    "lore:token": "node scripts/lore-token.ts",
+    "lore:pair": "node scripts/lore-pair.ts",
+    "exercise": "node scripts/exercise.ts",
+    "collect": "node scripts/collect.ts",
+    "solution": "node scripts/solution.ts",
+    "checkpoint": "node scripts/checkpoint.ts",
+    "reset": "node scripts/reset.ts",
+    "inspect": "node scripts/inspect.ts",
+    "evaluate": "node scripts/evaluate.ts",
+    "ui": "node workshop-ui/server.ts",
+    "ui:static": "node workshop-ui/build-static.ts",
+    "record": "node scripts/record.ts",
+    "smoke": "node scripts/smoke.ts",
+    "stale-demo": "node scripts/stale-demo.ts",
+    "prompts:export": "node scripts/export-prompts.ts",
+    "test": "vitest run",
+    "test:app": "node scripts/test-app.ts",
+    "test:integration": "vitest run --config vitest.integration.config.ts",
+    "test:all": "npm run typecheck && npm test && npm run test:app && npm run test:integration",
+    "typecheck": "tsc --noEmit",
+    "regrade": "node scripts/regrade.ts"
+  },
+  "dependencies": {
+    "@ai-sdk/anthropic": "4.0.110",
+    "@ai-sdk/google": "4.0.128",
+    "@ai-sdk/openai": "4.0.125",
+    "@ai-sdk/openai-compatible": "3.0.96",
+    "@fontsource-variable/atkinson-hyperlegible-next": "5.3.0",
+    "@fontsource/atkinson-hyperlegible-mono": "5.3.0",
+    "@modelcontextprotocol/sdk": "1.32.2",
+    "@openrouter/ai-sdk-provider": "3.1.0",
+    "ai": "7.0.183",
+    "diff": "9.0.0",
+    "zod": "4.6.7"
+  },
+  "devDependencies": {
+    "@types/node": "22.20.7",
+    "typescript": "5.9.3",
+    "vitest": "5.1.2"
+  }
+}

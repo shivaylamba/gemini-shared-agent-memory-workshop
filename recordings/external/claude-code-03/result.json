@@ -1,0 +1,150 @@
+{
+  "schemaVersion": 1,
+  "runId": "20261127-121522-03-shared-memory-claude-code-c486",
+  "status": "collected",
+  "correctness": {
+    "checks": [
+      {
+        "id": "full-refund",
+        "title": "Successful full refund",
+        "passed": true
+      },
+      {
+        "id": "partial-refund",
+        "title": "Successful partial refund",
+        "passed": true
+      },
+      {
+        "id": "invalid-amount",
+        "title": "Invalid / non-integer amounts rejected",
+        "passed": true
+      },
+      {
+        "id": "excessive-amount",
+        "title": "Excessive amount rejected",
+        "passed": true
+      },
+      {
+        "id": "unknown-order",
+        "title": "Unknown order",
+        "passed": true
+      },
+      {
+        "id": "idempotent-retry",
+        "title": "Idempotent retry",
+        "passed": true
+      },
+      {
+        "id": "cumulative-accounting",
+        "title": "Cumulative refund accounting",
+        "passed": true
+      },
+      {
+        "id": "current-adapter",
+        "title": "Current adapter (PayGate v2, paise)",
+        "passed": true
+      },
+      {
+        "id": "standardized-errors",
+        "title": "Standardized error responses",
+        "passed": true
+      },
+      {
+        "id": "provider-failure",
+        "title": "Mock provider failure handling",
+        "passed": true
+      }
+    ],
+    "checksPassed": 10,
+    "checksTotal": 10,
+    "regression": {
+      "passed": 11,
+      "failed": 0,
+      "failures": []
+    },
+    "visibleRefundTests": {
+      "passed": 3,
+      "failed": 0,
+      "failures": []
+    },
+    "timedOut": false,
+    "durationMs": 401,
+    "constraints": {
+      "integer-paise": true,
+      "refundable-limit": true,
+      "idempotency": true,
+      "current-adapter": true,
+      "error-envelope": true
+    }
+  },
+  "metrics": {
+    "values": {
+      "modelRequests": null,
+      "inputTokens": null,
+      "outputTokens": null,
+      "reasoningTokens": null,
+      "cachedInputTokens": null,
+      "totalTokens": null,
+      "peakInputTokens": null,
+      "toolCalls": null,
+      "toolErrors": null,
+      "localFileReads": null,
+      "uniqueFilesRead": null,
+      "localBytesRead": null,
+      "localSearches": null,
+      "knowledgeLists": null,
+      "knowledgeSearches": 1,
+      "knowledgeReads": 4,
+      "uniqueKnowledgeDocsRead": 4,
+      "knowledgeBytesRetrieved": 9415,
+      "proposalsPublished": null,
+      "filesWritten": null,
+      "testRuns": null,
+      "elapsedMs": null,
+      "waitMs": null
+    },
+    "unavailable": {
+      "modelRequests": "external agent: token usage, tool calls and file reads are not observable by the workshop",
+      "inputTokens": "external agent: token usage, tool calls and file reads are not observable by the workshop",
+      "outputTokens": "external agent: token usage, tool calls and file reads are not observable by the workshop",
+      "reasoningTokens": "external agent: token usage, tool calls and file reads are not observable by the workshop",
+      "cachedInputTokens": "external agent: token usage, tool calls and file reads are not observable by the workshop",
+      "totalTokens": "external agent: token usage, tool calls and file reads are not observable by the workshop",
+      "peakInputTokens": "external agent: token usage, tool calls and file reads are not observable by the workshop",
+      "toolCalls": "external agent: token usage, tool calls and file reads are not observable by the workshop",
+      "toolErrors": "external agent: token usage, tool calls and file reads are not observable by the workshop",
+      "localFileReads": "external agent: token usage, tool calls and file reads are not observable by the workshop",
+      "uniqueFilesRead": "external agent: token usage, tool calls and file reads are not observable by the workshop",
+      "localBytesRead": "external agent: token usage, tool calls and file reads are not observable by the workshop",
+      "localSearches": "external agent: token usage, tool calls and file reads are not observable by the workshop",
+      "knowledgeLists": "external agent: token usage, tool calls and file reads are not observable by the workshop",
+      "proposalsPublished": "external agent: token usage, tool calls and file reads are not observable by the workshop",
+      "filesWritten": "external agent: token usage, tool calls and file reads are not observable by the workshop",
+      "testRuns": "external agent: token usage, tool calls and file reads are not observable by the workshop",
+      "elapsedMs": "external agent: token usage, tool calls and file reads are not observable by the workshop",
+      "waitMs": "external agent: token usage, tool calls and file reads are not observable by the workshop"
+    }
+  },
+  "changes": {
+    "added": 0,
+    "modified": 4,
+    "deleted": 0,
+    "outsideAllowedAreas": []
+  },
+  "knowledge": {
+    "read": [
+      "/knowledge/architecture/payment-and-refund-architecture.md",
+      "/knowledge/decisions/payment-provider-abstraction-and-idempotency.md",
+      "/knowledge/decisions/payment-provider.md",
+      "/knowledge/decisions/refund-accounting-and-validation-rules.md"
+    ],
+    "proposed": []
+  },
+  "regraded": [
+    {
+      "at": "2026-11-27T12:18:38.580Z",
+      "reason": "cumulative-accounting now accepts 409 ORDER_NOT_REFUNDABLE or 422 REFUND_EXCEEDS_REFUNDABLE for a fully refunded order (both readings of ADR-005)",
+      "previousChecksPassed": 9
+    }
+  ]
+}

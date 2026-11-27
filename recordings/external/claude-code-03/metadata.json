@@ -1,0 +1,46 @@
+{
+  "schemaVersion": 1,
+  "runId": "20261127-121522-03-shared-memory-claude-code-c486",
+  "exercise": "03",
+  "condition": "shared-memory",
+  "interface": "external",
+  "origin": "live",
+  "controlled": false,
+  "agent": {
+    "name": "claude-code"
+  },
+  "model": {
+    "provider": null,
+    "id": null,
+    "reportedBy": "unknown"
+  },
+  "openlore": {
+    "enabled": true,
+    "identity": "claude-code-reader",
+    "scope": "read",
+    "endpoint": "http://localhost:7420"
+  },
+  "snapshot": {
+    "source": "core-app",
+    "hash": "0a9cb6e31097d7276f3c254a7adc25e51455f725aa341c5529b61768b7ba28be"
+  },
+  "prompt": {
+    "taskSha256": "cf12a36e57ac57db81a0e6ccb23f2a7a69f030ff1d6e77c9df23d8fce78a6a78",
+    "instructionsSha256": "41bfa26237796bff7a6f3ae424847a9e22319d47aeb7c6077da4409a16f77f50"
+  },
+  "budgets": null,
+  "generation": null,
+  "isolation": "external agent: workspace outside the repository; not sandboxed or budgeted by the workshop",
+  "workspace": "/Users/shivaylamba/shopflow-workshop/03-shared-memory",
+  "harnessVersion": "1.0.0",
+  "startedAt": "2026-11-27T12:13:59.211Z",
+  "finishedAt": "2026-11-27T12:15:22.994Z",
+  "host": {
+    "platform": "darwin-arm64",
+    "node": "v24.22.2"
+  },
+  "notes": [
+    "Collected from /Users/shivaylamba/shopflow-workshop/03-shared-memory; prepared 2026-11-27T12:13:59.211Z.",
+    "Re-graded 2026-11-27: cumulative-accounting now accepts 409 ORDER_NOT_REFUNDABLE or 422 REFUND_EXCEEDS_REFUNDABLE for a fully refunded order (both readings of ADR-005)"
+  ]
+}

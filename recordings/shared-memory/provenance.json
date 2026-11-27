@@ -1,0 +1,11 @@
+{
+  "recording": "shared-memory",
+  "synthetic": false,
+  "recordedAt": "2026-11-27T11:57:21.886Z",
+  "recordedBy": "shivaylamba",
+  "provider": "google",
+  "model": "gemini-3.5-flash-lite",
+  "harnessVersion": "1.0.0",
+  "openloreVersion": "0.8.0",
+  "gitCommit": "26f4b19"
+}

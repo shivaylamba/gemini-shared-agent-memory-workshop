@@ -1,0 +1,127 @@
+{
+  "schemaVersion": 1,
+  "runId": "20261127-115721-03-shared-memory-harness-8176",
+  "status": "budget_exhausted",
+  "correctness": {
+    "checks": [
+      {
+        "id": "full-refund",
+        "title": "Successful full refund",
+        "passed": true
+      },
+      {
+        "id": "partial-refund",
+        "title": "Successful partial refund",
+        "passed": true
+      },
+      {
+        "id": "invalid-amount",
+        "title": "Invalid / non-integer amounts rejected",
+        "passed": true
+      },
+      {
+        "id": "excessive-amount",
+        "title": "Excessive amount rejected",
+        "passed": true
+      },
+      {
+        "id": "unknown-order",
+        "title": "Unknown order",
+        "passed": true
+      },
+      {
+        "id": "idempotent-retry",
+        "title": "Idempotent retry",
+        "passed": true
+      },
+      {
+        "id": "cumulative-accounting",
+        "title": "Cumulative refund accounting",
+        "passed": true
+      },
+      {
+        "id": "current-adapter",
+        "title": "Current adapter (PayGate v2, paise)",
+        "passed": true
+      },
+      {
+        "id": "standardized-errors",
+        "title": "Standardized error responses",
+        "passed": true
+      },
+      {
+        "id": "provider-failure",
+        "title": "Mock provider failure handling",
+        "passed": true
+      }
+    ],
+    "checksPassed": 10,
+    "checksTotal": 10,
+    "regression": {
+      "passed": 11,
+      "failed": 0,
+      "failures": []
+    },
+    "visibleRefundTests": {
+      "passed": 3,
+      "failed": 0,
+      "failures": []
+    },
+    "timedOut": false,
+    "durationMs": 295,
+    "constraints": {
+      "integer-paise": true,
+      "refundable-limit": true,
+      "idempotency": true,
+      "current-adapter": true,
+      "error-envelope": true
+    }
+  },
+  "metrics": {
+    "values": {
+      "modelRequests": 30,
+      "inputTokens": 272031,
+      "outputTokens": 2887,
+      "reasoningTokens": 0,
+      "cachedInputTokens": 182289,
+      "totalTokens": 274918,
+      "peakInputTokens": 17966,
+      "toolCalls": 30,
+      "toolErrors": 0,
+      "localFileReads": 22,
+      "uniqueFilesRead": 21,
+      "localBytesRead": 37365,
+      "localSearches": 1,
+      "knowledgeLists": 1,
+      "knowledgeSearches": 0,
+      "knowledgeReads": 1,
+      "uniqueKnowledgeDocsRead": 1,
+      "knowledgeBytesRetrieved": 3389,
+      "proposalsPublished": 0,
+      "filesWritten": 3,
+      "testRuns": 1,
+      "elapsedMs": 311220,
+      "waitMs": 273995
+    },
+    "unavailable": {}
+  },
+  "changes": {
+    "added": 0,
+    "modified": 3,
+    "deleted": 0,
+    "outsideAllowedAreas": []
+  },
+  "knowledge": {
+    "read": [
+      "/knowledge/decisions/refund-accounting-and-validation-rules.md"
+    ],
+    "proposed": []
+  },
+  "regraded": [
+    {
+      "at": "2026-11-27T12:18:37.827Z",
+      "reason": "cumulative-accounting now accepts 409 ORDER_NOT_REFUNDABLE or 422 REFUND_EXCEEDS_REFUNDABLE for a fully refunded order (both readings of ADR-005)",
+      "previousChecksPassed": 9
+    }
+  ]
+}

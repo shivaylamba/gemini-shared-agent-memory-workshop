@@ -1,0 +1,68 @@
+{
+  "checks": [
+    {
+      "id": "full-refund",
+      "title": "Successful full refund",
+      "passed": true
+    },
+    {
+      "id": "partial-refund",
+      "title": "Successful partial refund",
+      "passed": true
+    },
+    {
+      "id": "invalid-amount",
+      "title": "Invalid / non-integer amounts rejected",
+      "passed": true
+    },
+    {
+      "id": "excessive-amount",
+      "title": "Excessive amount rejected",
+      "passed": true
+    },
+    {
+      "id": "unknown-order",
+      "title": "Unknown order",
+      "passed": true
+    },
+    {
+      "id": "idempotent-retry",
+      "title": "Idempotent retry",
+      "passed": true
+    },
+    {
+      "id": "cumulative-accounting",
+      "title": "Cumulative refund accounting",
+      "passed": true
+    },
+    {
+      "id": "current-adapter",
+      "title": "Current adapter (PayGate v2, paise)",
+      "passed": true
+    },
+    {
+      "id": "standardized-errors",
+      "title": "Standardized error responses",
+      "passed": true
+    },
+    {
+      "id": "provider-failure",
+      "title": "Mock provider failure handling",
+      "passed": true
+    }
+  ],
+  "checksPassed": 10,
+  "checksTotal": 10,
+  "regression": {
+    "passed": 11,
+    "failed": 0,
+    "failures": []
+  },
+  "visibleRefundTests": {
+    "passed": 3,
+    "failed": 0,
+    "failures": []
+  },
+  "timedOut": false,
+  "durationMs": 323
+}

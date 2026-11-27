@@ -1,0 +1,16 @@
+{
+  "comment": "Pinned OpenLore release used by the workshop. Checksums copied from the release's checksums.txt and verified on download by `npm run setup`.",
+  "version": "0.8.0",
+  "tag": "v0.8.0",
+  "released": "2026-10-30",
+  "repository": "https://github.com/aakarim/OpenLore",
+  "license": "Apache-2.0",
+  "downloadBase": "https://github.com/aakarim/OpenLore/releases/download/v0.8.0",
+  "assets": {
+    "darwin-x64": { "file": "openlore_darwin_amd64.tar.gz", "sha256": "97199b47b1f8fb411d6a286ec02ec6521a82d916aca92a83d31f2573cd165d6e" },
+    "darwin-arm64": { "file": "openlore_darwin_arm64.tar.gz", "sha256": "d7195c25152803bf1f323703eb7fd729991f7ec55ed8c63f6bbb08faadc5c28b" },
+    "linux-x64": { "file": "openlore_linux_amd64.tar.gz", "sha256": "f769c7539c2168af3e94ae52db8089b561f8ce8c5e81f3ae9b6dac79bda0e7fa" },
+    "linux-arm64": { "file": "openlore_linux_arm64.tar.gz", "sha256": "d0a64f7812d598820b4aa1e2eba141ffcc390452731b9f954a24ecc41c078080" },
+    "win32-x64": { "file": "openlore_windows_amd64.zip", "sha256": "bd131c13efc2ed71c048278b9f509da5f9946ccb7a839f13738839d3f2d7b1d9" }
+  }
+}

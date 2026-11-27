@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 1,
+  "runId": "20261127-115349-02-capture-harness-0f53",
+  "exercise": "02",
+  "condition": "capture",
+  "interface": "harness",
+  "origin": "live",
+  "controlled": true,
+  "agent": {
+    "name": "workshop-harness",
+    "version": "1.0.0"
+  },
+  "model": {
+    "provider": "google",
+    "id": "gemini-3.5-flash-lite",
+    "reportedBy": "harness"
+  },
+  "openlore": {
+    "enabled": true,
+    "identity": "harness-capture",
+    "scope": "full",
+    "endpoint": "http://localhost:7420",
+    "serverVersion": "0.8.0"
+  },
+  "snapshot": {
+    "source": "core-app",
+    "hash": "0a9cb6e31097d7276f3c254a7adc25e51455f725aa341c5529b61768b7ba28be"
+  },
+  "prompt": {
+    "taskSha256": "da5dda54576edaeafab88cdf3133127d80793fd52b433927407a8d986a5a340c",
+    "instructionsSha256": "f47b92281e430b42b067c3f60a31f92e3acee62d2eb29bf85f9f612ef5ab5dea"
+  },
+  "budgets": {
+    "maxModelRequests": 30,
+    "maxToolCalls": 60,
+    "maxRuntimeMs": 300000
+  },
+  "generation": {
+    "temperature": "provider default",
+    "maxOutputTokens": "provider default",
+    "maxRetries": 2,
+    "requestsPerMinute": 5
+  },
+  "isolation": "harness: workspace-confined tools, no shell, sandboxed test runs (Node permission model, scrubbed env)",
+  "workspace": "/Users/shivaylamba/Downloads/gemini-shared-agent-memory-workshop/.workshop/workspaces/02-capture",
+  "harnessVersion": "1.0.0",
+  "startedAt": "2026-11-27T11:53:49.058Z",
+  "host": {
+    "platform": "darwin-arm64",
+    "node": "v24.22.2"
+  },
+  "finishedAt": "2026-11-27T11:56:00.029Z"
+}

@@ -1,0 +1,80 @@
+{
+  "checks": [
+    {
+      "id": "full-refund",
+      "title": "Successful full refund",
+      "passed": false,
+      "error": "{\"error\":{\"code\":\"INTERNAL_ERROR\",\"message\":\"An unexpected error occurred\"}}\n\n500 !== 201\n"
+    },
+    {
+      "id": "partial-refund",
+      "title": "Successful partial refund",
+      "passed": false,
+      "error": "{\"error\":{\"code\":\"INTERNAL_ERROR\",\"message\":\"An unexpected error occurred\"}}\n\n500 !== 201\n"
+    },
+    {
+      "id": "invalid-amount",
+      "title": "Invalid / non-integer amounts rejected",
+      "passed": true
+    },
+    {
+      "id": "excessive-amount",
+      "title": "Excessive amount rejected",
+      "passed": true
+    },
+    {
+      "id": "unknown-order",
+      "title": "Unknown order",
+      "passed": true
+    },
+    {
+      "id": "idempotent-retry",
+      "title": "Idempotent retry",
+      "passed": false,
+      "error": "{\"error\":{\"code\":\"INTERNAL_ERROR\",\"message\":\"An unexpected error occurred\"}}\n\n500 !== 201\n"
+    },
+    {
+      "id": "cumulative-accounting",
+      "title": "Cumulative refund accounting",
+      "passed": false,
+      "error": "Expected values to be strictly equal:\n\n500 !== 201\n"
+    },
+    {
+      "id": "current-adapter",
+      "title": "Current adapter (PayGate v2, paise)",
+      "passed": false,
+      "error": "{\"error\":{\"code\":\"INTERNAL_ERROR\",\"message\":\"An unexpected error occurred\"}}\n\n500 !== 201\n"
+    },
+    {
+      "id": "standardized-errors",
+      "title": "Standardized error responses",
+      "passed": false,
+      "error": "Expected values to be strictly equal:\n\n500 !== 201\n"
+    },
+    {
+      "id": "provider-failure",
+      "title": "Mock provider failure handling",
+      "passed": false,
+      "error": "expected HTTP 502, got 500: {\"error\":{\"code\":\"INTERNAL_ERROR\",\"message\":\"An unexpected error occurred\"}}\n\n500 !== 502\n"
+    }
+  ],
+  "checksPassed": 3,
+  "checksTotal": 10,
+  "regression": {
+    "passed": 11,
+    "failed": 0,
+    "failures": []
+  },
+  "visibleRefundTests": {
+    "passed": 2,
+    "failed": 1,
+    "failures": [
+      {
+        "name": "refunds: partially refunds a paid order",
+        "error": "Expected values to be strictly equal:\n\n500 !== 201\n"
+      }
+    ]
+  },
+  "timedOut": false,
+  "durationMs": 340
+}

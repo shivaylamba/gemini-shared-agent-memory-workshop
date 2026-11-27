@@ -1,0 +1,161 @@
+===================================================================
+--- a/src/refunds/refund-routes.ts
++++ b/src/refunds/refund-routes.ts
+@@ -1,3 +1,6 @@
++import { requireJsonObject } from '../middleware/json-body.ts';
++import { parseIdempotencyKey } from '../utils/idempotency.ts';
++import { parsePositivePaise } from '../utils/money.ts';
+ import type { Router } from '../utils/router.ts';
+ import type { RefundService } from './refund-service.ts';
+ 
+@@ -6,7 +9,15 @@
+ }
+ 
+ export function registerRefundRoutes(router: Router, deps: RefundRouteDeps): void {
+-  // TODO(workshop): register POST /api/orders/:orderId/refund (see docs/architecture/api.md).
+-  void router;
+-  void deps;
++  router.post('/api/orders/:orderId/refund', async (request) => {
++    const body = requireJsonObject(request.body);
++    const amount = parsePositivePaise(body.amount);
++    const idempotencyKey = parseIdempotencyKey(body.idempotencyKey);
++    const result = await deps.refunds.refund({
++      orderId: request.params.orderId!,
++      amount,
++      idempotencyKey,
++    });
++    return { status: 201, body: result };
++  });
+ }
+
+===================================================================
+--- a/src/refunds/refund-service.ts
++++ b/src/refunds/refund-service.ts
+@@ -1,15 +1,18 @@
+-import type { IdempotencyStore } from '../utils/idempotency.ts';
+-import type { Paise } from '../utils/money.ts';
++import { AppError } from '../utils/errors.ts';
++import { fingerprintOf, type IdempotencyStore } from '../utils/idempotency.ts';
++import { withRetry } from '../utils/retry.ts';
++import { isRetryableProviderError, ProviderError, type PaymentProvider } from '../integrations/payment-provider.ts';
+ import type { OrderRepository } from '../orders/order-repository.ts';
+-import type { OrderView } from '../orders/order.ts';
+-import type { TransactionLedger } from '../payments/transaction-ledger.ts';
++import { refundableAmountOf, toOrderView, type OrderView } from '../orders/order.ts';
++import type { Transaction, TransactionLedger } from '../payments/transaction-ledger.ts';
++import type { Paise } from '../utils/money.ts';
+ 
+ export interface RefundServiceDeps {
+   orders: OrderRepository;
++  provider: PaymentProvider;
+   idempotency: IdempotencyStore;
+   ledger: TransactionLedger;
+   clock: () => Date;
+-  // TODO(workshop): refunds also need access to the payment provider.
+ }
+ 
+ export interface RefundInput {
+@@ -35,7 +38,13 @@
+ 
+ /**
+  * Refunds part or all of a paid order.
+- * Contract: docs/architecture/api.md ("POST /api/orders/:orderId/refund").
++ *
++ * Contract & ADRs:
++ *   - ADR-001: integer paise
++ *   - ADR-002: payment provider refund
++ *   - ADR-003: idempotency with refund scope
++ *   - ADR-004: standard error envelope
++ *   - ADR-005: refund accounting (paid/partially_refunded status, running total, refundable amount check)
+  */
+ export class RefundService {
+   private readonly deps: RefundServiceDeps;
+@@ -45,9 +54,84 @@
+   }
+ 
+   async refund(input: RefundInput): Promise<RefundResult> {
+-    // TODO(workshop): implement the refund operation.
+-    void this.deps;
+-    void input;
+-    throw new Error('RefundService.refund is not implemented yet');
++    const { orders, provider, idempotency, ledger, clock } = this.deps;
++    const scope = `refund:${input.orderId}`;
++
++    return idempotency.run(scope, input.idempotencyKey, fingerprintOf({ orderId: input.orderId, amount: input.amount }), async () => {
++      const order = orders.get(input.orderId);
++
++      if (order.status !== 'paid' && order.status !== 'partially_refunded') {
++        throw new AppError('ORDER_NOT_REFUNDABLE', `Order ${order.id} has not been paid`, { orderId: order.id });
++      }
++
++      const refundable = refundableAmountOf(order);
++      if (input.amount > refundable) {
++        throw new AppError('REFUND_EXCEEDS_REFUNDABLE', `Refund amount ${input.amount} exceeds refundable amount ${refundable}`, {
++          orderId: order.id,
++          amount: input.amount,
++          refundableAmount: refundable,
++        });
++      }
++
++      if (!order.chargeId) {
++        throw new AppError('ORDER_NOT_REFUNDABLE', `Order ${order.id} has no charge id`, { orderId: order.id });
++      }
++
++      const providerRefund = await withRetry(
++        () =>
++          provider.refund({
++            chargeId: order.chargeId!,
++            amount: input.amount,
++            reference: order.id,
++            idempotencyKey: input.idempotencyKey,
++          }),
++        { attempts: 3, isRetryable: isRetryableProviderError },
++      ).catch((error: unknown) => {
++        throw refundProviderFailure(error, order.id);
++      });
++
++      const now = clock().toISOString();
++      const newRefundedAmount = order.refundedAmount + input.amount;
++      const newStatus = newRefundedAmount === order.amount ? 'refunded' : 'partially_refunded';
++
++      const saved = orders.save({
++        ...order,
++        status: newStatus,
++        refundedAmount: newRefundedAmount,
++        updatedAt: now,
++      });
++
++      const transaction = ledger.record({
++        orderId: order.id,
++        type: 'refund',
++        amount: providerRefund.amount,
++        provider: provider.name,
++        providerReference: providerRefund.providerRefundId,
++        idempotencyKey: input.idempotencyKey,
++        createdAt: now,
++      });
++
++      const refund: Refund = {
++        id: transaction.id,
++        orderId: order.id,
++        amount: providerRefund.amount,
++        status: 'succeeded',
++        providerRefundId: providerRefund.providerRefundId,
++        idempotencyKey: input.idempotencyKey,
++        createdAt: now,
++      };
++
++      return { refund, order: toOrderView(saved) };
++    });
+   }
+ }
++
++export function refundProviderFailure(error: unknown, orderId: string): AppError {
++  if (error instanceof ProviderError) {
++    return new AppError('PAYMENT_PROVIDER_ERROR', 'The payment provider could not process the refund request', {
++      orderId,
++      providerCode: error.code,
++    });
++  }
++  return new AppError('INTERNAL_ERROR', 'An unexpected error occurred');
++}
