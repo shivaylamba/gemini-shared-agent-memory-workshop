@@ -20,7 +20,7 @@ across the agent ecosystem. The workshop is an experiment, not a product pitch: 
 | 20–35 | **02 Teach an Agent to Remember** | `npm run lore:start`; capture; `npm run lore:review`; retrieve with `npm run lore -- …` | `npm run checkpoint -- 02` |
 | 35–50 | **03 Share Knowledge Across Agents** | Fresh session, same prompt; inspect retrieval | `--mode replay` or `npm run checkpoint -- 03` |
 | 50–65 | **04 Does Memory Actually Help?** | `npm run evaluate`; discuss; optional stale demo | Use replay comparison |
-| 65–70 | **Cross-agent demo** | Presenter: Antigravity reads knowledge another client produced; `npm run evaluate -- --portability` | Play the backup recording |
+| 65–70 | **Cross-agent demo, access control** | Presenter: another client reads knowledge one agent produced (3 min); then a refused write and `lore history` (2 min) | Play the backup recording; show the access-control slide |
 | 70–75 | Takeaways, Q&A | Trade-offs, freshness, governance | — |
 
 Installation must happen **before** the event (send the [participant message](#participant-preparation-message)).
@@ -87,10 +87,13 @@ Enforce timeboxes. Never debug one person's setup in front of the room.
   `--label stale-memory`, then `npm run stale-demo -- off`. Discuss `status`, `verified_at`,
   `source`, verification, and `lore history`.
 
-### 65–70 Cross-agent demo
+### 65–70 Cross-agent demo, then access control
 
-Follow [DEMO_SCRIPT.md](DEMO_SCRIPT.md): Antigravity reads knowledge that another client produced,
-without that client's conversation. Then run `npm run evaluate -- --portability`.
+- 65–68: follow [DEMO_SCRIPT.md](DEMO_SCRIPT.md): a client reads knowledge that another client
+  produced, without that client's conversation. Then run `npm run evaluate -- --portability`.
+- 68–70: the [access-control demo](DEMO_SCRIPT.md#access-control-demo-minutes-6870). The capture
+  identity tries to overwrite an approved note and OpenLore refuses it. Then `lore history` shows
+  which agent wrote the note and which person approved it.
 
 ### 70–75 Close
 

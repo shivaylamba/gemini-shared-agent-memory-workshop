@@ -7,7 +7,7 @@
 | 20–35 | [Exercise 02: Teach an Agent to Remember](exercises/02-capture-knowledge/README.md) | Reviewed, sourced notes published to OpenLore by a governed path |
 | 35–50 | [Exercise 03: Share Knowledge Across Agents](exercises/03-share-knowledge/README.md) | The same task in a fresh session that retrieves the notes |
 | 50–65 | [Exercise 04: Does Memory Actually Help?](exercises/04-evaluate-memory/README.md) | Measured comparison (Experiment A); optional stale-knowledge demo |
-| 65–70 | Cross-agent portability demo ([script](docs/DEMO_SCRIPT.md)) | Knowledge produced by one agent, consumed by another, with no shared conversation |
+| 65–70 | Cross-agent portability demo, then access control ([script](docs/DEMO_SCRIPT.md)) | Knowledge produced by one agent, consumed by another, with no shared conversation; a refused write and `lore history` show who can write what |
 | 70–75 | Takeaways and Q&A | When to use what; freshness, provenance, access, review |
 
 ## Learning flow
